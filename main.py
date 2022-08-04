@@ -46,6 +46,7 @@ def train_one_epoch(training_dataloader, optimizer, epoch_index, tb_writer):
 
         # Make predictions for this batch
         outputs = model(inputs)
+        # TODO reference or variable
         # print(outputs)
         # print(labels)
         # Compute the loss and its gradients
@@ -54,7 +55,7 @@ def train_one_epoch(training_dataloader, optimizer, epoch_index, tb_writer):
 
         # Adjust learning weights
         optimizer.step()
-
+        # TODO: return which loss?
         running_loss += loss.item()
         if i % _args.batch_size == _args.batch_size-1:
             last_loss = running_loss / _args.batch_size  # loss per batch
@@ -72,10 +73,12 @@ def tensors_2_dataloader(data_tensors, args):
         data_loaders.append(torch.utils.data.DataLoader(data_tensor,
                                                         batch_size=args.batch_size,
                                                         num_workers=args.num_workers))
+
     return data_loaders
 
 
 # main process
+
 _args = get_args()
 raw_data = torch.rand(10, _args.input_dim)
 labels = torch.rand(10, _args.output_dim)
@@ -103,7 +106,7 @@ loss_fn = torch.nn.MSELoss()
 
 model = Model(args=_args)
 model_path = 'DL_model'
-#  SGD, Adagrad, or Adam and their relationship
+#  SGD, RMSprop, or Adam and their relationship
 # weight decay: parameter of the L2 penalty
 optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 # optimizer = torch.optim.RMSprop(model.parameters(), lr=0.001)
@@ -118,14 +121,17 @@ for epoch in range(_args.epoch_number):
                                epoch_index=current_epoch, tb_writer=writer)
 
     # We don't need gradients on to do reporting
-    model.train(False)
-
+    # model.train(False)
+    # TODO: no dropout
+    model.eval()
     running_vloss, i = 0.0, 0
     for i, vdata in enumerate(validation_loader):
         vinputs, vlabels = vdata
         voutputs = model(vinputs)
         vloss = loss_fn(voutputs, vlabels)
         running_vloss += vloss
+
+
 
     # count is i + 1
     avg_vloss = running_vloss / (i + 1)

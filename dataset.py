@@ -9,8 +9,8 @@ import numpy as np
 
 class CustomDataset(data.Dataset):
     def __init__(self, raw_data=None, raw_labels=None, transform=None, target_transform=None):
-        self.raw_labels = raw_labels
         self.raw_data = raw_data
+        self.raw_labels = raw_labels
 
     def __len__(self):
         return len(self.raw_data)
